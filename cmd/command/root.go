@@ -5,7 +5,16 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+type Config struct {
+	Credentials struct {
+		EmailAddress  string
+		EmailPassword string
+	}
+	EncryptionKey string
+}
 
 var (
 	defaultOutput = os.Stdout
@@ -35,4 +44,39 @@ func newCommandRoot() *cobra.Command {
 		newCommandFetchPRs(),
 	)
 	return cmd
+}
+
+func initConfig(cfgFile string) (*Config, error) {
+	viperInstance := viper.New()
+	if cfgFile != "" {
+		viperInstance.SetConfigFile(cfgFile)
+	} else {
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+		hd, err := os.UserHomeDir()
+		if err != nil {
+			return nil, err
+		}
+
+		viperInstance.AddConfigPath(wd)
+		viperInstance.AddConfigPath(hd)
+		viperInstance.SetConfigName(".config")
+		viperInstance.SetConfigType("yaml")
+	}
+
+	viperInstance.AutomaticEnv()
+
+	err := viperInstance.ReadInConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	var config Config
+	if err := viperInstance.UnmarshalExact(&config); err != nil {
+		return nil, err
+	}
+	return &config, nil
+
 }

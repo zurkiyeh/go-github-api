@@ -1,9 +1,14 @@
 package command
 
 import (
+	"context"
 	"fmt"
+	"net/url"
+	"os"
 
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/zurkiyeh/go-github-cli/transport"
 )
 
 // Fetch pull-requests config
@@ -31,6 +36,17 @@ func newCommandFetchPRs() *cobra.Command {
 			logger.Info("Your email address:", config.Credentials.EmailAddress)
 			logger.Info("Your email address:", config.Credentials.EmailPassword)
 
+			c := transport.NewClient(logger)
+			// queryParams.Set("repo", "charmbracelet/wish")
+			// "?q=repo:+is:pull-request+created:>2022-04-28"
+			params := url.Values{
+				"repo": {"charmbracelet/wish"},
+			}
+			req, _ := c.NewRequest("GET", "search/issues", params, nil)
+			c.Logger.Info("Request: ", req.URL)
+			err = c.Do(context.Background(), req)
+
+			return err
 		},
 	}
 	return setupflags(cmd, &configFile)

@@ -77,37 +77,33 @@ func (c *Client) Do(ctx context.Context, req *http.Request) error {
 
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		default:
-		}
-		c.Logger.Error("an error occured while sending request", err)
+		c.Logger.Errorf("an error occured while sending request: %s", err)
 		return err
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode <= 200 || resp.StatusCode >= 299 {
+	// Check if requested returned error
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		var apiError APIError
+		c.Logger.Debug("Status code : ", resp.StatusCode)
 		body, _ := ioutil.ReadAll(resp.Body)
 		if err := json.Unmarshal(body, &apiError); err != nil {
 			fmt.Println("Can not unmarshal JSON")
-		} else {
-			// 	fmt.Printf("an error occured:  %s", apiError.Message)
-			// 	for _, apiErr := range apiError.Errors {
-			// 		fmt.Printf(apiErr.Code)
-			// 	}
-			// }
-			// fmt.Printf("%s\n", body)
+			return err
 		}
-		return err
-	}
-	var result Response
-	body, err := ioutil.ReadAll(resp.Body)
-	if err := json.Unmarshal(body, &result); err != nil {
-		fmt.Println("Can not unmarshal JSON")
+		c.Logger.Debug("an error ocurred while sending request: %s ", apiError.Message)
+		return fmt.Errorf("an error ocurred while sending request: %s ", ErrBadRequest)
 	}
 
-	fmt.Printf("Your response is %s: ", body)
+	var result Response
+	body, _ := ioutil.ReadAll(resp.Body)
+	if err := json.Unmarshal(body, &result); err != nil {
+		c.Logger.Error("Can not unmarshal JSON")
+	}
+
+	c.Logger.Debug("Request has returned ", len(result.Items), " items")
+	for i, pr := range result.Items {
+		c.Logger.Debug(" Pull-request #", i, " has title: ", pr.Title)
+	}
 	return nil
 }

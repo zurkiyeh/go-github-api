@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"fmt"
 	"net/url"
 	"os"
 
@@ -18,13 +17,11 @@ type configFetchPullRequest struct {
 }
 
 func newCommandFetchPRs() *cobra.Command {
-	fmt.Println("Test")
 	var configFile configFetchPullRequest
 	cmd := &cobra.Command{
 		Use:  "fetch-pr",
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			fmt.Printf("Print from within the command\n")
 			config, err := initConfig(configFile.ConfigFile)
 			if err != nil {
 				return err
@@ -37,8 +34,6 @@ func newCommandFetchPRs() *cobra.Command {
 			logger.Info("Your email address:", config.Credentials.EmailPassword)
 
 			c := transport.NewClient(logger)
-			// queryParams.Set("repo", "charmbracelet/wish")
-			// "?q=repo:+is:pull-request+created:>2022-04-28"
 			params := url.Values{
 				"repo": {"charmbracelet/wish"},
 			}

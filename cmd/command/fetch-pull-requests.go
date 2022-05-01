@@ -24,9 +24,13 @@ func newCommandFetchPRs() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("Your email address: %s \n", config.Credentials.EmailAddress)
-			fmt.Printf("Your email password: %s\n", config.Credentials.EmailPassword)
-			return nil
+			logger, err := initLogger(configFile.Debug)
+			if err != nil {
+				return err
+			}
+			logger.Info("Your email address:", config.Credentials.EmailAddress)
+			logger.Info("Your email address:", config.Credentials.EmailPassword)
+
 		},
 	}
 	return setupflags(cmd, &configFile)
@@ -38,4 +42,22 @@ func setupflags(cmd *cobra.Command, c *configFetchPullRequest) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&c.Debug, "debug", "d", c.Debug, "Set log level to DEBUG.")
 	return cmd
+}
+
+func initLogger(setDebug bool) (*logrus.Logger, error) {
+	logger := logrus.New()
+
+	logger.SetLevel(logrus.InfoLevel)
+	if setDebug {
+		logger.SetLevel(logrus.DebugLevel)
+	}
+
+	logger.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp:          true,
+		DisableLevelTruncation: true,
+		DisableSorting:         true,
+	})
+
+	logger.SetOutput(os.Stdout)
+	return logger, nil
 }

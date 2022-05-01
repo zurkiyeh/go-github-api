@@ -32,10 +32,10 @@ type Client struct {
 	HttpClient *http.Client
 }
 
-func NewClient() *Client {
+func NewClient(logger *logrus.Logger) *Client {
 	return &Client{
 		BaseURL: defaultBaseURL,
-		Logger:  logrus.New(),
+		Logger:  logger,
 		HttpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},

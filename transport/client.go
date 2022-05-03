@@ -48,9 +48,8 @@ func NewClient(logger *logrus.Logger) *Client {
 }
 
 // newRequest generates a http.Request based on the method
-func (c *Client) NewRequest(method, path string, params url.Values, payload io.Reader) (*http.Request, error) {
-	url := c.getURL(path, params)
-	req, err := http.NewRequest(method, url.String(), payload)
+func (c *Client) NewRequest(method, path string, query string) (*http.Request, error) {
+	req, err := http.NewRequest(method, c.BaseURL.String()+path+query, nil)
 
 	if err != nil {
 		return nil, err

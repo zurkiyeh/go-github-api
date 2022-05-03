@@ -42,6 +42,8 @@ func newCommandFetchPRs() *cobra.Command {
 			logger.Info("Your email address:", config.Credentials.EmailAddress)
 			logger.Info("Your email address:", config.Credentials.EmailPassword)
 
+			c := transport.NewClient(logger,
+				&config.PersonalToken)
 			if err != nil {
 				c.Logger.Errorf("an error occured while parsing user input: %s", err)
 				return err
@@ -52,6 +54,8 @@ func newCommandFetchPRs() *cobra.Command {
 				return err
 			}
 			c.Logger.Debug("Query is: ", query)
+			req, _ := c.NewRequest("GET", "search/issues", query, config.PersonalToken)
+
 			c.Logger.Info("Request: ", req.URL)
 			err = c.Do(context.Background(), req)
 

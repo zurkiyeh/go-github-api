@@ -5,15 +5,17 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 type Config struct {
 	Credentials struct {
-		EmailAddress  string
-		EmailPassword string
+		EmailAddress   string
+		EmailPassword  string
+		EmailRecepient string
+		EmailSmtpHost  string
+		EmailSmtpPort  string
 	}
-	EncryptionKey string
+	PersonalToken string
 }
 
 var (

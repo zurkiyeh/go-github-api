@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -20,11 +19,16 @@ var (
 	defaultBaseURLStr = "https://api.github.com/"
 	defaultBaseURL, _ = url.Parse(defaultBaseURLStr)
 	defaultTimeout    = 30 * time.Second
+	defaultRateLimit  = 60
 )
 
 var (
-	// ErrBadRequest is a 400 http error.
+	// ErrBadRequest is a any response that isnt >200 and <299
 	ErrBadRequest = errors.New("bad request")
+
+	// ErrBadRequest is a 401 http error.
+	ErrUnAuthorized = errors.New("bad request: Unauthorized")
+
 	// ErrNotFound is a 404 http error.
 	ErrNotFound = errors.New("not found")
 )
@@ -35,12 +39,14 @@ type Client struct {
 
 	Logger     *logrus.Logger
 	HttpClient *http.Client
+	token      *string
 }
 
-func NewClient(logger *logrus.Logger) *Client {
+func NewClient(logger *logrus.Logger, token *string) *Client {
 	return &Client{
 		BaseURL: defaultBaseURL,
 		Logger:  logger,
+		token:   token,
 		HttpClient: &http.Client{
 			Timeout: defaultTimeout,
 		},
@@ -48,23 +54,21 @@ func NewClient(logger *logrus.Logger) *Client {
 }
 
 // newRequest generates a http.Request based on the method
-func (c *Client) NewRequest(method, path string, query string) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, query string, token string) (*http.Request, error) {
 	req, err := http.NewRequest(method, c.BaseURL.String()+path+query, nil)
 
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Accept", "application/json")
-	return req, nil
-}
-
-func (c *Client) getURL(path string, params url.Values) *url.URL {
-	return &url.URL{
-		Scheme:   c.BaseURL.Scheme,
-		Host:     c.BaseURL.Host,
-		Path:     fmt.Sprintf("/%s", path),
-		RawQuery: "q=" + params.Encode(),
+	if token != "" {
+		c.Logger.Debug("Using Basic auth token")
+		req.Header.Set("authorization", fmt.Sprintf("Bearer %s", token))
+	} else {
+		c.Logger.Warning(fmt.Sprintf("No auth token was set. Be aware that Github API restricts non-authenticated accounts to %d calls/hr", defaultRateLimit))
+		c.Logger.Warning("Refer to README for more info on how to generate a token")
 	}
+	return req, nil
 }
 
 // do performs a roundtrip using the underlying client

@@ -11,5 +11,7 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# Config file to store credentials and secrets
+.config.yaml
 # Dependency directories (remove the comment below to include it)
 # vendor/

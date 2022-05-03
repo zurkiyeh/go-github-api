@@ -81,17 +81,9 @@ func (c *Client) Do(ctx context.Context, req *http.Request) error {
 	}
 	defer resp.Body.Close()
 
-	// Check if requested returned error
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		var apiError APIError
-		c.Logger.Debug("Status code : ", resp.StatusCode)
-		body, _ := ioutil.ReadAll(resp.Body)
-		if err := json.Unmarshal(body, &apiError); err != nil {
-			fmt.Println("Can not unmarshal JSON")
-			return err
-		}
-		c.Logger.Debug("an error ocurred while sending request: %s ", apiError.Message)
-		return fmt.Errorf("an error ocurred while sending request: %s ", ErrBadRequest)
+	if ok := validateResponse(resp); ok != nil {
+		return ok
+
 	}
 
 	var result Response

@@ -18,12 +18,6 @@ type Config struct {
 
 var (
 	defaultOutput = os.Stdout
-
-	// timeFormats = []string{
-	// 	"2006-01-02",
-	// 	"2006-01-02T15:04",
-	// 	"2006-01-02T15:04:05",
-	// }
 )
 
 // Execute executes the root command.
@@ -36,9 +30,10 @@ func Execute() {
 
 func newCommandRoot() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "go-github-api",
-		Short:   "Fetch pull-requests from your favorite repo",
-		Version: "1.0.0",
+		Use:          "go-github-api",
+		Short:        "Fetch pull-requests from your favorite repo",
+		Version:      "1.0.0",
+		SilenceUsage: true,
 	}
 	cmd.AddCommand(
 		newCommandFetchPRs(),
@@ -46,37 +41,13 @@ func newCommandRoot() *cobra.Command {
 	return cmd
 }
 
-func initConfig(cfgFile string) (*Config, error) {
-	viperInstance := viper.New()
-	if cfgFile != "" {
-		viperInstance.SetConfigFile(cfgFile)
-	} else {
-		wd, err := os.Getwd()
-		if err != nil {
-			return nil, err
-		}
-		hd, err := os.UserHomeDir()
-		if err != nil {
-			return nil, err
-		}
+// set up flags for fetch-pr command
+func setupflags(cmd *cobra.Command, c *configFetchPullRequest) *cobra.Command {
+	cmd.Flags().StringVarP(&c.ConfigFile, "config", "c", c.ConfigFile, "Set configfile alternate location. Default is .config.yaml in this dir.")
+	cmd.Flags().StringVarP(&c.Repo, "repo", "r", c.ConfigFile, "Specify repo to be searched. Format: \"Org/repo_name\". Default will be charmbracelet/wish")
+	cmd.Flags().StringVarP(&c.To, "to", "t", c.ConfigFile, "End time for search period")
+	cmd.Flags().StringVarP(&c.From, "from", "f", c.ConfigFile, "start time for search period")
 
-		viperInstance.AddConfigPath(wd)
-		viperInstance.AddConfigPath(hd)
-		viperInstance.SetConfigName(".config")
-		viperInstance.SetConfigType("yaml")
-	}
-
-	viperInstance.AutomaticEnv()
-
-	err := viperInstance.ReadInConfig()
-	if err != nil {
-		return nil, err
-	}
-
-	var config Config
-	if err := viperInstance.UnmarshalExact(&config); err != nil {
-		return nil, err
-	}
-	return &config, nil
-
+	cmd.Flags().BoolVarP(&c.Debug, "debug", "d", c.Debug, "Set log level to DEBUG.")
+	return cmd
 }

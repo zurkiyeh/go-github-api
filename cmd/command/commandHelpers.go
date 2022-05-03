@@ -3,6 +3,8 @@ package command
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -124,4 +126,14 @@ func buildQuery(cfg configFetchPullRequest) (string, error) {
 func extractDate(date time.Time) (string, error) {
 	dateStr := "%02d-%02d-%02d"
 	return fmt.Sprintf(dateStr, date.Year(), date.Month(), date.Day()), nil
+}
+
+func getSigChan() chan os.Signal {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan,
+		syscall.SIGHUP,
+		syscall.SIGINT,
+		syscall.SIGTERM,
+		syscall.SIGQUIT)
+	return sigChan
 }

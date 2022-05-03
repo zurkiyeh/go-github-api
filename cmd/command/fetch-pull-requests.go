@@ -39,8 +39,20 @@ func newCommandFetchPRs() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			logger.Info("Your email address:", config.Credentials.EmailAddress)
-			logger.Info("Your email address:", config.Credentials.EmailPassword)
+			// logger.Info("Your email address:", config.Credentials.EmailAddress)
+			// logger.Info("Your email address:", config.Credentials.EmailPassword)
+
+			ctx, cancel := context.WithCancel(context.Background())
+			go func() {
+				sigChan := getSigChan()
+				for {
+					select {
+					case <-sigChan:
+						cancel()
+						return
+					}
+				}
+			}()
 
 			c := transport.NewClient(logger,
 				&config.PersonalToken)
@@ -57,7 +69,7 @@ func newCommandFetchPRs() *cobra.Command {
 			req, _ := c.NewRequest("GET", "search/issues", query, config.PersonalToken)
 
 			c.Logger.Info("Request: ", req.URL)
-			err = c.Do(context.Background(), req)
+			err = c.Do(ctx, req)
 
 			return err
 		},

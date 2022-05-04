@@ -1,0 +1,8 @@
+FROM golang:1.17 AS builder
+
+RUN mkdir /go-github-cli
+ADD . /go-github-cli
+WORKDIR /go-github-cli
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o app cmd/cli/main.go
+ENTRYPOINT ["/bin/bash"]

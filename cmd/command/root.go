@@ -47,7 +47,7 @@ func newCommandRoot() *cobra.Command {
 
 // set up flags for fetch-pr command
 func setupflags(cmd *cobra.Command, c *configFetchPullRequest) *cobra.Command {
-	cmd.Flags().StringVarP(&c.ConfigFile, "config", "c", c.ConfigFile, "Set configfile alternate location. Default is .config.yaml in this dir.")
+	cmd.Flags().StringVarP(&c.ConfigFile, "config", "c", c.ConfigFile, "Set configfile alternate location. Default is .config.yaml in root dir.")
 	cmd.Flags().StringVarP(&c.Repo, "repo", "r", c.ConfigFile, "Specify repo to be searched. Format: \"Org/repo_name\". Default will be charmbracelet/wish")
 	cmd.Flags().StringVarP(&c.To, "to", "t", c.ConfigFile, "End time for search period. Format YYYY/MM/DD")
 	cmd.Flags().StringVarP(&c.From, "from", "f", c.ConfigFile, "start time for search period. Format YYYY/MM/DD")

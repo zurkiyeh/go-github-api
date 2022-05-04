@@ -96,7 +96,6 @@ func buildQuery(initQuery string, cfg configFetchPullRequest, logger *logrus.Log
 			return "", err
 		}
 		logger.Info("Default \"From\" time: ", from)
-		from, _ = extractDate(time.Now())
 	}
 
 	// Check that -t has not been overridden from the CLI. If so, try to parse the new passed value

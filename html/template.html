@@ -1,0 +1,23 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+
+</head>
+
+<body>
+    <p>
+        Hello from go-github-cli! Here are your pull-request search results :<br>
+        {{range $pullrequest := .Items}}
+        <li>Title: {{$pullrequest.Title}} by "{{$pullrequest.User.Login}}":<br>
+            CreatedAt: {{$pullrequest.CreatedAt}}<br>
+            UpdatedAt: {{$pullrequest.UpdatedAt}}<br>
+            Status: {{$pullrequest.State}}<br>
+            Link: <a href="{{$pullrequest.URL}}">Take me there!</a><br>
+            <br>
+        </li>
+        {{end}}
+    </p>
+
+</body>
+
+</html>

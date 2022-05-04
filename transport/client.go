@@ -35,13 +35,13 @@ var (
 
 // A Client struct will contain logic to handle communication with Github API search endpoint.
 type Client struct {
-	BaseURL *url.URL
-
+	BaseURL    *url.URL
 	Logger     *logrus.Logger
 	HttpClient *http.Client
 	token      *string
 }
 
+// Struct constructor
 func NewClient(logger *logrus.Logger, token *string) *Client {
 	return &Client{
 		BaseURL: defaultBaseURL,
@@ -53,20 +53,21 @@ func NewClient(logger *logrus.Logger, token *string) *Client {
 	}
 }
 
-// newRequest generates a http.Request based on the method
+// newRequest generates a http.Request based on the passed query and method specified
 func (c *Client) NewRequest(method, path string, query string, token string) (*http.Request, error) {
 	req, err := http.NewRequest(method, c.BaseURL.String()+path+query, nil)
 
 	if err != nil {
 		return nil, err
 	}
+	// Set header to accept json
 	req.Header.Set("Accept", "application/json")
+	// Check if token has been set otherwise default to non-authenticated request
 	if token != "" {
 		c.Logger.Debug("Using Basic auth token")
 		req.Header.Set("authorization", fmt.Sprintf("Bearer %s", token))
 	} else {
-		c.Logger.Warning(fmt.Sprintf("No auth token was set. Be aware that Github API restricts non-authenticated accounts to %d calls/hr", defaultRateLimit))
-		c.Logger.Warning("Refer to README for more info on how to generate a token")
+		c.Logger.Warning(fmt.Sprintf("No auth token Detected. Be aware that Github API restricts non-authenticated accounts to %drequests/hr", defaultRateLimit), ". Refer to README for more info on how to generate a token")
 	}
 	return req, nil
 }
@@ -85,9 +86,10 @@ func (c *Client) Do(ctx context.Context, req *http.Request) error {
 	}
 	defer resp.Body.Close()
 
-	if ok := validateResponse(resp); ok != nil {
+	// Check response for invalid status errors. Only status  200 < errors < 299 are accepted
+	if ok := validateResponse(resp, c.Logger); ok != nil {
+		c.Logger.Error(ok)
 		return ok
-
 	}
 
 	var result Response

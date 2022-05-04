@@ -2,6 +2,7 @@ package transport
 
 import "time"
 
+// Contains struct format to parse Github API responses
 type APIError struct {
 	Message          string   `json:"message"`
 	Errors           []Errors `json:"errors"`

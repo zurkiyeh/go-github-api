@@ -7,14 +7,6 @@ import (
 	"github.com/zurkiyeh/go-github-cli/transport"
 )
 
-var (
-	default_repo = "charmbracelet/wish"
-)
-
-const (
-	time_layout = "2006-01-02T15:04:05"
-)
-
 // Fetch pull-requests config
 type configFetchPullRequest struct {
 	ConfigFile string
@@ -28,6 +20,7 @@ func newCommandFetchPRs() *cobra.Command {
 	var configFile configFetchPullRequest
 	cmd := &cobra.Command{
 		Use:          "fetch-pr",
+		Short:        "Fetch pull-requests from your favorite repo!",
 		Args:         cobra.NoArgs,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -48,7 +41,7 @@ func newCommandFetchPRs() *cobra.Command {
 				c.Logger.Errorf("an error occured while parsing user input: %s", err)
 				return err
 			}
-			query, err := buildQuery(configFile)
+			query, err := buildQuery("?q=is:pull-request", configFile, c.Logger)
 			if err != nil {
 				c.Logger.Error("error parsing user input")
 				return err

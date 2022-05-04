@@ -15,7 +15,7 @@ var (
 )
 
 const (
-	time_layout = "2006-01-02T15:04:05"
+	time_layout = "2006-01-02"
 )
 
 // Initializing config file
@@ -88,14 +88,14 @@ func buildQuery(initQuery string, cfg configFetchPullRequest, logger *logrus.Log
 			return "", err
 		}
 		from, _ = extractDate(time)
-		logger.Info("Overriding \"From\" time: %s\n", from)
+		logger.Info("Overriding \"From\" time: ", from)
 	} else {
 		// if not set, default to a week from now (Default behavior)
 		from, _ = extractDate(time.Now().AddDate(0, 0, -7))
 		if err != nil {
 			return "", err
 		}
-		logger.Info("Default \"From\" time: %s\n", from)
+		logger.Info("Default \"From\" time: ", from)
 		from, _ = extractDate(time.Now())
 	}
 
@@ -106,14 +106,20 @@ func buildQuery(initQuery string, cfg configFetchPullRequest, logger *logrus.Log
 			return "", err
 		}
 		to, _ = extractDate(time)
-		logger.Info("Overriding to time: %s\n", to)
+		if err != nil {
+			return "", err
+		}
+		logger.Info("Overriding to time: ", to)
 	} else {
 		// if not set, default to now (Default behavior)
 		if err != nil {
 			return "", err
 		}
-		logger.Info("Default to time: %s\n", to)
-		to, _ = extractDate(time.Now())
+		to, err = extractDate(time.Now())
+		if err != nil {
+			return "", err
+		}
+		logger.Info("Default \"to\" time: ", to)
 	}
 
 	// Add query string based on flags passed to adher to github specifications
@@ -127,10 +133,11 @@ func buildQuery(initQuery string, cfg configFetchPullRequest, logger *logrus.Log
 
 	// Check if repo has been overridden
 	if cfg.Repo == "" {
-		logger.Info("Default repo : %s\n", default_repo)
+		repo = default_repo
+		logger.Info("Default repo : ", default_repo)
 	} else {
 		repo = cfg.Repo
-		logger.Info("Overriding repo : %s\n", repo)
+		logger.Info("Overriding repo :", repo)
 	}
 	query += fmt.Sprintf("+repo:%s", repo)
 	return query, nil

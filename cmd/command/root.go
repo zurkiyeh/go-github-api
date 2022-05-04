@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Struct to parse the config file
 type Config struct {
 	Credentials struct {
 		EmailAddress   string
@@ -30,10 +31,11 @@ func Execute() {
 	}
 }
 
+// Init the root command info
 func newCommandRoot() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:          "go-github-api",
-		Short:        "Fetch pull-requests from your favorite repo",
+		Short:        "CLI utility to interact with Github search API",
 		Version:      "1.0.0",
 		SilenceUsage: true,
 	}

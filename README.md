@@ -1,5 +1,5 @@
 # go-github-cli
-Golang github api cli utility that fetches latest pull-requests within a time period
+Golang github api cli utility that fetches latest pull-requests from your favorite reposiroty within a specified time period.
 
 # Usage
 ```
@@ -36,6 +36,8 @@ Credentials:
   EmailSmtpPort : 587 # Default is 587 
 PersonalToken: GITHUB_TOKEN # Refer to section "Access Tokens" to learn how to generate the Github token
 ```
+## other requirements:
+- have docker installed
 # How to use:
 https://api.github.com/search/issues?q=is:pull-request+created:2006-01-02..2022-05-01+repo:gin-gonic/gin
 
@@ -51,3 +53,19 @@ https://github.com/settings/tokens/new
 
 only supports days
 default behavior set to search for a week from now
+
+
+# Run with Docker
+first build in the main dir:
+> docker build -t go-github-search-api:latest-local .
+
+To run:
+> docker run -it go-github-search-api:latest-local [FLAGS]
+
+# Testing
+The command package was not tested as the tests are provided by the cobra package
+
+To test client_test.go, you must have the env var GOOD_TOKEN defined 
+> export GOOD_ENV=PLACE_YOUR_TOKEN_HERE
+
+To run the tests:

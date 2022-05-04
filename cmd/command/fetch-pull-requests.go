@@ -50,7 +50,12 @@ func newCommandFetchPRs() *cobra.Command {
 			req, _ := c.NewRequest("GET", "search/issues", query, config.PersonalToken)
 
 			c.Logger.Info("Request: ", req.URL)
-			err = c.Do(context.Background(), req)
+			respJSON, err := c.Do(context.Background(), req)
+
+			c.Logger.Debug("Request has returned ", len(respJSON.Items), " items")
+			for i, pr := range respJSON.Items {
+				c.Logger.Debug(" Pull-request #", i, " has title: ", pr.Title)
+			}
 
 			return err
 		},

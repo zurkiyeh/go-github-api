@@ -73,23 +73,23 @@ func (c *Client) NewRequest(method, path string, query string, token string) (*h
 }
 
 // do performs a roundtrip using the underlying client
-func (c *Client) Do(ctx context.Context, req *http.Request) error {
+func (c *Client) Do(ctx context.Context, req *http.Request) (*Response, error) {
 	if ctx == nil {
-		return errors.New("context must be non-nil")
+		return nil, errors.New("context must be non-nil")
 	}
 	req = req.WithContext(ctx)
 
 	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		c.Logger.Errorf("an error occured while sending request: %s", err)
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	// Check response for invalid status errors. Only status  200 < errors < 299 are accepted
 	if ok := validateResponse(resp, c.Logger); ok != nil {
 		c.Logger.Error(ok)
-		return ok
+		return nil, ok
 	}
 
 	var result Response
@@ -97,10 +97,5 @@ func (c *Client) Do(ctx context.Context, req *http.Request) error {
 	if err := json.Unmarshal(body, &result); err != nil {
 		c.Logger.Error("Can not unmarshal JSON")
 	}
-
-	c.Logger.Debug("Request has returned ", len(result.Items), " items")
-	for i, pr := range result.Items {
-		c.Logger.Debug(" Pull-request #", i, " has title: ", pr.Title)
-	}
-	return nil
+	return &result, nil
 }

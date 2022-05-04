@@ -1,5 +1,5 @@
 # go-github-cli
-Golang github api cli utility that fetches latest pull-requests within a time period
+Golang github api cli utility that fetches latest pull-requests from your favorite reposiroty within a specified time period.
 
 # Usage
 ```
@@ -51,3 +51,12 @@ https://github.com/settings/tokens/new
 
 only supports days
 default behavior set to search for a week from now
+
+
+# Testing
+The command package was not tested as the tests are provided by the cobra package
+
+To test client_test.go, you must have the env var GOOD_TOKEN defined 
+> export GOOD_ENV=PLACE_YOUR_TOKEN_HERE
+
+To run the tests:
